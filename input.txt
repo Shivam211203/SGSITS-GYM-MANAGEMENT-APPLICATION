@@ -1,0 +1,1663 @@
+Heres folder Structure 
+lib
+    HomePages
+        adminhome.dart
+        userHome.dart
+    pages
+        GsHome.dart
+        loginpage.dart
+        loginUi.dart
+        passwordResetPage.dart
+        signupPage.dart
+    main.dart 
+
+    now i will give you every files in line
+    import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
+
+class Adminhome extends StatefulWidget {
+  const Adminhome({super.key});
+  @override
+  State<Adminhome> createState() => _AdminhomeState();
+}
+
+class _AdminhomeState extends State<Adminhome> {
+  @override
+  void initState() {
+    super.initState();
+    getUserDetails();
+  }
+
+  QuerySnapshot? details;
+  String? firstName;
+  String? mobileNumber;
+  String? lastName;
+  String email = FirebaseAuth.instance.currentUser!.email.toString();
+  Future<void> getUserDetails() async {
+    try {
+      details = await FirebaseFirestore.instance
+          .collection("Admins")
+          .where("email", isEqualTo: FirebaseAuth.instance.currentUser!.email)
+          .get();
+
+      if (details != null && details!.docs.isNotEmpty) {
+        setState(() {
+          mobileNumber = details!.docs[0].get("mobileNumber");
+          firstName = details!.docs[0].get("firstName");
+          lastName = details!.docs[0].get("lastName");
+        });
+      }
+    } catch (e) {
+      print("Error fetching admin details: $e");
+    }
+  }
+
+  @override
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Colors.amberAccent,
+          elevation: 1,
+          leading: Container(
+            margin: const EdgeInsets.only(top: 10, left: 20),
+            child: CircleAvatar(
+              backgroundImage: AssetImage('assets/logo.jpeg'),
+              backgroundColor: Colors.transparent,
+            ),
+          ),
+          title: Container(
+            margin: const EdgeInsets.only(top: 10, left: 20),
+            child: Text(
+              "Welcome $firstName",
+              style: TextStyle(
+                  fontStyle: FontStyle.italic, fontWeight: FontWeight.w400),
+            ),
+          ),
+          actions: [
+            Container(
+                margin: const EdgeInsets.only(top: 10, left: 20),
+                child: IconButton(onPressed: () {}, icon: Icon(Icons.menu)))
+          ]),
+      body: Column(
+        children: [
+          Container(
+            height: 40,
+            color: const Color.fromARGB(255, 254, 227, 129),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 5,
+                ),
+                Icon(
+                  Icons.label_important,
+                  color: Colors.orange,
+                ),
+                Expanded(
+                  child: Marquee(
+                    text: "Announcments",
+                    style: TextStyle(fontSize: 16),
+                    scrollAxis: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    blankSpace: MediaQuery.of(context).size.width,
+                    velocity: 100.0,
+                    startPadding: 10.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text("Choose what You Wanna do today!",
+              style: TextStyle(fontSize: 18)),
+          SizedBox(
+            height: 10,
+          ),
+          Container(
+            margin: EdgeInsets.all(1.6),
+            height: MediaQuery.of(context).size.height * 0.48,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Colors.black, width: 2)),
+            padding: EdgeInsets.only(
+                right: MediaQuery.of(context).size.width * 0.04),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      child: Container(
+                          height: MediaQuery.of(context).size.width * 0.43,
+                          margin: EdgeInsets.only(
+                              left: MediaQuery.of(context).size.width * 0.04,
+                              top: MediaQuery.of(context).size.width * 0.04),
+                          width: MediaQuery.of(context).size.width * 0.43,
+                          decoration: BoxDecoration(
+                              color: Colors.amberAccent,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Center(
+                              child: Text("Manage Members",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontStyle: FontStyle.italic)))),
+                    ),
+                    GestureDetector(
+                      child: Container(
+                          height: MediaQuery.of(context).size.width * 0.43,
+                          margin: EdgeInsets.only(
+                              left: MediaQuery.of(context).size.width * 0.04,
+                              top: MediaQuery.of(context).size.width * 0.04),
+                          width: MediaQuery.of(context).size.width * 0.43,
+                          decoration: BoxDecoration(
+                              color: Colors.amberAccent,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Center(
+                              child: Text("Add User/Admin",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontStyle: FontStyle.italic)))),
+                    )
+                  ],
+                ),
+                Row(
+                  children: [
+                    GestureDetector(
+                      child: Container(
+                          height: MediaQuery.of(context).size.width * 0.43,
+                          margin: EdgeInsets.only(
+                              left: MediaQuery.of(context).size.width * 0.04,
+                              top: MediaQuery.of(context).size.width * 0.04),
+                          width: MediaQuery.of(context).size.width * 0.43,
+                          decoration: BoxDecoration(
+                              color: Colors.amberAccent,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: Center(
+                              child: Text("Announcments",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontStyle: FontStyle.italic)))),
+                    ),
+                    GestureDetector(
+                      child: Container(
+                        height: MediaQuery.of(context).size.width * 0.43,
+                        margin: EdgeInsets.only(
+                            left: MediaQuery.of(context).size.width * 0.04,
+                            top: MediaQuery.of(context).size.width * 0.04),
+                        width: MediaQuery.of(context).size.width * 0.43,
+                        decoration: BoxDecoration(
+                            color: Colors.amberAccent,
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Center(
+                            child: Text("Complaints",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontStyle: FontStyle.italic))),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 40,
+          ),
+          Text(
+            "or Manage Admins {requires admin Key}",
+            style: TextStyle(color: Colors.redAccent),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          GestureDetector(
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.amberAccent,
+                  border: Border.all(color: Colors.black, width: 1),
+                  borderRadius: BorderRadius.circular(50)),
+              height: 50,
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: Center(
+                child: Text(
+                  "Manage Admins",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          GestureDetector(
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.amberAccent,
+                  border: Border.all(color: Colors.black, width: 1),
+                  borderRadius: BorderRadius.circular(50)),
+              height: 50,
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: Center(
+                child: Text(
+                  "contact owner",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:marquee/marquee.dart';
+import 'package:step_progress_indicator/step_progress_indicator.dart';
+
+class Userhome extends StatefulWidget {
+  const Userhome({super.key});
+
+  @override
+  State<Userhome> createState() => _UserhomeState();
+}
+
+class _UserhomeState extends State<Userhome> {
+  @override
+  void initState() {
+    super.initState();
+    getUserDetails();
+  }
+
+  QuerySnapshot? details;
+  String? firstName;
+  String? mobileNumber;
+  String? lastName;
+  String email = FirebaseAuth.instance.currentUser!.email.toString();
+
+  Future<void> getUserDetails() async {
+    try {
+      details = await FirebaseFirestore.instance
+          .collection("Users")
+          .where("email", isEqualTo: FirebaseAuth.instance.currentUser!.email)
+          .get();
+
+      if (details != null && details!.docs.isNotEmpty) {
+        setState(() {
+          mobileNumber = details!.docs[0].get("mobileNumber");
+          firstName = details!.docs[0].get("firstName");
+          lastName = details!.docs[0].get("lastName");
+        });
+      }
+    } catch (e) {
+      print("Error fetching admin details: $e");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF6366F1), Color(0xFF4338CA)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            child: Image.asset(
+              'assets/logo.jpeg',
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        title: Text(
+          "Welcome, $firstName!",
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_none, color: Colors.white),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF8FAFC), Color(0xFFEFF6FF)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.amber[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline,
+                      color: Colors.orange, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Marquee(
+                      text:
+                          "Important Announcements: Stay tuned for special events and schedule updates!",
+                      style: const TextStyle(
+                        color: Colors.deepOrange,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      velocity: 50.0,
+                      blankSpace: 20.0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                "Your Gym Dashboard",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: const LinearGradient(
+                        colors: [Colors.white, Color(0xFFF0F4FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.blue.shade100,
+                                width: 4,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.blue.shade100,
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                )
+                              ],
+                            ),
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundImage:
+                                  const AssetImage('assets/avtar.jpg'),
+                              backgroundColor: Colors.transparent,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            "Plan Progress",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: 120,
+                            height: 120,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                CircularStepProgressIndicator(
+                                  totalSteps: 100,
+                                  currentStep: 74,
+                                  stepSize: 10,
+                                  selectedColor: Colors.blueAccent,
+                                  unselectedColor: Colors.grey.shade200,
+                                  padding: 0,
+                                  width: 110,
+                                  height: 110,
+                                  selectedStepSize: 12,
+                                  roundedCap: (_, __) => true,
+                                ),
+                                Text(
+                                  "74%",
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          Expanded(
+                            child: ListView(
+                              children: [
+                                _buildDetailItem(
+                                  Icons.person_outline,
+                                  "Member Name",
+                                  "$firstName $lastName",
+                                ),
+                                _buildDetailItem(
+                                  Icons.credit_card_outlined,
+                                  "Member ID",
+                                  "${details?.docs[0].id.substring(0, 3).toUpperCase()}",
+                                ),
+                                _buildDetailItem(
+                                  Icons.fitness_center_outlined,
+                                  "Assigned Trainer",
+                                  "Shivam Patel",
+                                ),
+                                _buildDetailItem(
+                                  Icons.calendar_today_outlined,
+                                  "Membership End Date",
+                                  "15 Sept 2024",
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailItem(IconData icon, String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: Colors.blue.shade600, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade800,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/material.dart';
+import 'package:sgsits_gym/pages/loginpage.dart';
+
+class Gshome extends StatefulWidget {
+  Gshome({required this.items, super.key});
+  final List<Widget> items;
+  @override
+  State<Gshome> createState() => _GshomeState();
+}
+
+class _GshomeState extends State<Gshome> {
+  int _currIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.08),
+      child: Column(
+        children: [
+          Text(
+            "\"Welcome To SGSITS GYMNASIUM\"",
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontStyle: FontStyle.italic,
+                fontSize: 15),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Column(
+            children: [
+              CarouselSlider(
+                items: widget.items,
+                options: CarouselOptions(
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _currIndex = index;
+                    });
+                  },
+                  height: MediaQuery.of(context).size.height * 0.43,
+                  enlargeCenterPage: true,
+                  autoPlay: true,
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  autoPlayInterval: Duration(seconds: 2),
+                  autoPlayAnimationDuration: Duration(milliseconds: 1000),
+                  enableInfiniteScroll: true,
+                  viewportFraction: 0.8,
+                  initialPage: 0,
+                  disableCenter: false,
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: widget.items.map((image) {
+                  int index = widget.items.indexOf(image);
+                  return Container(
+                    margin: EdgeInsets.symmetric(horizontal: 5),
+                    height: 10,
+                    width: 10,
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black, width: 1),
+                        color: index == _currIndex
+                            ? Colors.amberAccent
+                            : Colors.white,
+                        shape: BoxShape.circle),
+                  );
+                }).toList(),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 50,
+          ),
+          Text(
+            textAlign: TextAlign.center,
+            "\" Lets Get Fit With SGSITS Gym\" ",
+            style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontStyle: FontStyle.italic,
+                fontSize: 15),
+          ),
+          SizedBox(
+            height: 3,
+          ),
+          Text(
+            textAlign: TextAlign.center,
+            " If you are new Here Please Contact +917489474338 \n Or login by Tapping Below Button",
+            style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontStyle: FontStyle.italic,
+                fontSize: 13),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => Loginpage()));
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.amberAccent,
+                  border: Border.all(color: Colors.black, width: 1),
+                  borderRadius: BorderRadius.circular(50)),
+              height: 50,
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: Center(
+                child: Text(
+                  "Go to Login Page",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+
+import 'package:flutter/material.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:sgsits_gym/pages/loginUi.dart';
+
+class Loginpage extends StatefulWidget {
+  const Loginpage({super.key});
+
+  @override
+  State<Loginpage> createState() => _LoginpageState();
+}
+
+class _LoginpageState extends State<Loginpage> {
+  String text = "User Login";
+  bool isAdmin = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 217, 78),
+      body: Stack(
+        children: [
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 500),
+            switchInCurve: Curves.linear,
+            child: Image.asset(
+              text == "Admin Login"
+                  ? "assets/Login_background.jpg"
+                  : "assets/Login_background2.jpg",
+              key: ValueKey<String>(text),
+              height: double.infinity,
+              width: double.infinity,
+              fit: BoxFit.fill,
+            ),
+          ),
+          LoginUi(
+            isAdmin: isAdmin,
+          ),
+        ],
+      ),
+      bottomNavigationBar: Container(
+        decoration:
+            BoxDecoration(border: Border.all(color: Colors.black, width: 1)),
+        child: GNav(
+          mainAxisAlignment: MainAxisAlignment.center,
+          color: const Color.fromARGB(255, 158, 158, 158),
+          tabs: [
+            GButton(
+              icon: Icons.account_circle_sharp,
+              text: "User Login",
+              onPressed: () {
+                setState(() {
+                  text = "User Login";
+                  isAdmin = false;
+                });
+              },
+            ),
+            GButton(
+              icon: Icons.manage_accounts_rounded,
+              text: "Admin Login",
+              onPressed: () {
+                setState(() {
+                  text = "Admin Login";
+                  isAdmin = true;
+                });
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sgsits_gym/HomePages/adminhome.dart';
+import 'package:sgsits_gym/pages/passwordResetPage.dart';
+import 'package:sgsits_gym/pages/signupPage.dart';
+import 'package:sgsits_gym/HomePages/userHome.dart';
+
+class LoginUi extends StatefulWidget {
+  LoginUi({super.key, required this.isAdmin});
+  final bool isAdmin;
+  @override
+  State<LoginUi> createState() => _LoginUiState();
+}
+
+class _LoginUiState extends State<LoginUi> {
+  final emailcontroller = TextEditingController();
+  final passwordController = TextEditingController();
+  bool _isLoading = false;
+  String? _errorMessage;
+  String? emailError;
+  String? passwordError;
+  bool _passwordVisible = false;
+
+  Future<void> signin() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final Doc = await FirebaseFirestore.instance
+          .collection("${widget.isAdmin ? "Admins" : "Users"}")
+          .where("email", isEqualTo: emailcontroller.text.trim())
+          .get();
+      if (Doc.docs.isNotEmpty) {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailcontroller.text.trim(),
+          password: passwordController.text.trim(),
+        );
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => widget.isAdmin ? Adminhome() : Userhome(),
+          ),
+        );
+      } else {
+        throw FirebaseAuthException(
+          code: "user-not-found",
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = _getFirebaseErrorMessage(e);
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _getFirebaseErrorMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-credential':
+        return 'please enter correct login details';
+      case 'user-not-found':
+        return 'No ${!widget.isAdmin ? "User" : "Admin"} found for that email.';
+      case 'wrong-password':
+        return 'Wrong password provided for that user.';
+      default:
+        return 'An error occurred. Please try again later.';
+    }
+  }
+
+  void _validateEmail(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        emailError = 'Email is required';
+      });
+      return;
+    }
+    final emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[\w-]{2,7}$');
+    if (!emailRegex.hasMatch(value)) {
+      setState(() {
+        emailError = 'Enter a valid email address';
+      });
+    } else {
+      setState(() {
+        emailError = null;
+      });
+    }
+  }
+
+  void _validatePassword(String value) {
+    if (value.isEmpty) {
+      setState(() {
+        passwordError = 'Password is required';
+      });
+      return;
+    }
+    if (value.length < 8) {
+      setState(() {
+        passwordError = 'Password must be at least 8 characters';
+      });
+    } else {
+      setState(() {
+        passwordError = null;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                widget.isAdmin ? " Welcome Back Admin" : "Welcome Back User ",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              TextField(
+                controller: emailcontroller,
+                onChanged: _validateEmail,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  hintText: "example@gmail.com",
+                  errorText: emailError,
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                controller: passwordController,
+                onChanged: _validatePassword,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  errorText: passwordError,
+                  border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _passwordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _passwordVisible = !_passwordVisible;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: !_passwordVisible,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    child: Text(
+                      "Forgot Password",
+                      style: TextStyle(
+                        color: Colors.blue,
+                      ),
+                    ),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PasswordResetPage(),
+                        )),
+                  ),
+                ],
+              ),
+              Visibility(
+                visible: _errorMessage != null,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: Text(
+                    _errorMessage ?? '',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Container(
+                height: 50.0,
+                margin: EdgeInsets.all(10),
+                child: ElevatedButton(
+                  onPressed:
+                      _isLoading || emailError != null || passwordError != null
+                          ? null
+                          : signin,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(80.0),
+                    ),
+                    padding: EdgeInsets.all(0.0),
+                    shadowColor: Colors.transparent,
+                  ),
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.yellow,
+                          const Color.fromARGB(255, 238, 191, 23),
+                        ],
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                      ),
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    child: Container(
+                      constraints: BoxConstraints(
+                          maxWidth: double.infinity, minHeight: 50.0),
+                      alignment: Alignment.center,
+                      child: _isLoading
+                          ? CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            )
+                          : Text(
+                              "Login",
+                              textAlign: TextAlign.center,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 15),
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Text(
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+                "or create an ${widget.isAdmin ? "Admin" : "User"} account using",
+              ),
+              Container(
+                height: 50.0,
+                margin: EdgeInsets.all(10),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+                        return Signuppage(isAdmin: widget.isAdmin);
+                      },
+                    ));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(80.0),
+                    ),
+                    padding: EdgeInsets.all(0.0),
+                    shadowColor: Colors.transparent,
+                  ),
+                  child: Ink(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    child: Container(
+                      constraints: BoxConstraints(
+                          maxWidth: double.infinity, minHeight: 50.0),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Signup",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Visibility(
+                  visible: widget.isAdmin,
+                  child: Text(
+                    "Note : you cant signup as administrator without admin key contact owner if you are a gym trainer",
+                    style: TextStyle(color: Colors.red),
+                  )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
+class PasswordResetPage extends StatefulWidget {
+  const PasswordResetPage({super.key});
+  @override
+  _PasswordResetPageState createState() => _PasswordResetPageState();
+}
+
+class _PasswordResetPageState extends State<PasswordResetPage> {
+  final emailController = TextEditingController();
+  String errorText = "";
+
+  Future<void> _resetPassword() async {
+    try {
+      await FirebaseAuth.instance
+          .sendPasswordResetEmail(email: emailController.text.trim());
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          content:
+              const Text("Password reset link has been sent to your email"),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"))
+          ],
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        errorText = e.message ?? "Error resetting password";
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text('Reset Password'),
+          backgroundColor: Colors.amberAccent,
+          elevation: 0),
+      body: Padding(
+        padding: const EdgeInsets.all(28.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Enter your email to reset your password',
+                style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 20),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                  labelText: 'Email', border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  fixedSize: Size(MediaQuery.of(context).size.width * 0.9, 50),
+                  backgroundColor: Colors.amberAccent,
+                  foregroundColor: Colors.black),
+              onPressed: _resetPassword,
+              child: const Text('Reset Password'),
+            ),
+            if (errorText.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child:
+                    Text(errorText, style: const TextStyle(color: Colors.red)),
+              )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sgsits_gym/HomePages/adminhome.dart';
+import 'package:sgsits_gym/HomePages/userHome.dart';
+
+class Signuppage extends StatefulWidget {
+  const Signuppage({super.key, required this.isAdmin});
+  final bool isAdmin;
+
+  @override
+  State<Signuppage> createState() => _SignuppageState();
+}
+
+class _SignuppageState extends State<Signuppage> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final keyController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final mobileNumberController = TextEditingController();
+
+  String? firstNameError,
+      lastNameError,
+      mobileNumberError,
+      emailError,
+      passwordError,
+      adminKeyError;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    keyController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
+    mobileNumberController.dispose();
+    super.dispose();
+  }
+
+  bool isValid(String mobileNumber) =>
+      RegExp(r'^[0-9]{10}$').hasMatch(mobileNumber);
+
+  void validateMobileNumber(String mobileNumber) {
+    if (!isValid(mobileNumber)) {
+      mobileNumberError = "Mobile Number should be 10 digits";
+    } else {
+      mobileNumberError = null;
+    }
+  }
+
+  void validateEmailId(String email) {
+    if (!email.contains('@') || !email.contains('.')) {
+      emailError = "Please enter a valid email address";
+      return;
+    }
+
+    List<String> parts = email.split('@');
+    if (parts.length != 2 || parts[0].isEmpty || parts[1].isEmpty) {
+      emailError = "Please enter a valid email address";
+      return;
+    }
+
+    List<String> domainParts = parts[1].split('.');
+    if (domainParts.length < 2 || domainParts.last.length < 2) {
+      emailError = "Please enter a valid email address";
+    } else {
+      emailError = null;
+    }
+  }
+
+  void validatePassword(String password) {
+    if (password.length <= 8) {
+      passwordError = "Password should be at least 8 digits";
+    } else {
+      passwordError = null;
+    }
+  }
+
+  void validateFirstName() {
+    if (firstNameController.text.contains(RegExp(r'[0-9]'))) {
+      firstNameError = "Name should not contain numbers";
+    } else {
+      firstNameError = null;
+    }
+  }
+
+  void validateLastName() {
+    if (lastNameController.text.contains(RegExp(r'[0-9]'))) {
+      lastNameError = "Name should not contain numbers";
+    } else {
+      lastNameError = null;
+    }
+  }
+
+  void validateFields() {
+    setState(() {
+      firstNameError =
+          firstNameController.text.isEmpty ? "First Name is required" : null;
+      lastNameError =
+          lastNameController.text.isEmpty ? "Last Name is required" : null;
+      validateMobileNumber(mobileNumberController.text);
+      validateEmailId(emailController.text);
+      validatePassword(passwordController.text);
+      if (widget.isAdmin) {
+        adminKeyError =
+            keyController.text.isEmpty ? "Admin Key is required" : null;
+      }
+    });
+  }
+
+  Future<void> signup() async {
+    validateFields();
+    if ([
+      firstNameError,
+      lastNameError,
+      mobileNumberError,
+      emailError,
+      passwordError,
+      adminKeyError
+    ].any((e) => e != null)) return;
+
+    try {
+      if (widget.isAdmin) {
+        DocumentSnapshot adminKeyDoc = await FirebaseFirestore.instance
+            .collection("Admins")
+            .doc("Admin-Key")
+            .get();
+        if (!adminKeyDoc.exists || keyController.text != adminKeyDoc["Key"]) {
+          throw FirebaseAuthException(
+              code: "invalid-admin-key",
+              message: "Invalid Admin Key. Please enter the correct key.");
+        }
+      }
+
+      UserCredential userCred = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim());
+      final String uid = userCred.user!.uid;
+      await FirebaseFirestore.instance
+          .collection(widget.isAdmin ? "Admins" : "Users")
+          .doc(uid)
+          .set({
+        "firstName": firstNameController.text.trim(),
+        "lastName": lastNameController.text.trim(),
+        "mobileNumber": mobileNumberController.text.trim(),
+        "email": emailController.text.trim(),
+      });
+
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (_) => widget.isAdmin ? Adminhome() : Userhome()));
+    } on FirebaseAuthException catch (e) {
+      _showErrorDialog(e.message ?? "An unknown error occurred");
+    } catch (e) {
+      _showErrorDialog("An unknown error occurred");
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Error"),
+          content: Text(message),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"))
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text('Sign Up'),
+          backgroundColor: Colors.amberAccent,
+          elevation: 0),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+            color: Colors.amberAccent,
+            border: Border.all(color: Colors.black, width: 1)),
+        child: GNav(
+          mainAxisAlignment: MainAxisAlignment.center,
+          tabs: [
+            GButton(
+              text: widget.isAdmin ? "Admin Signup" : "User Signup",
+              icon: widget.isAdmin
+                  ? Icons.manage_accounts_outlined
+                  : Icons.account_circle_sharp,
+            )
+          ],
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(25.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                    "Please fill below entries for ${widget.isAdmin ? "Admin" : "User"}"),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: firstNameController,
+                  decoration: InputDecoration(
+                    labelText: 'First Name',
+                    border: const OutlineInputBorder(),
+                    errorText: firstNameError,
+                  ),
+                  onChanged: (value) {
+                    validateFirstName();
+                    setState(() {});
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: lastNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Last Name',
+                    border: const OutlineInputBorder(),
+                    errorText: lastNameError,
+                  ),
+                  onChanged: (value) {
+                    validateLastName();
+                    setState(() {});
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: mobileNumberController,
+                  decoration: InputDecoration(
+                    labelText: 'Mobile Number',
+                    border: const OutlineInputBorder(),
+                    errorText: mobileNumberError,
+                  ),
+                  onChanged: (value) {
+                    validateMobileNumber(value);
+                    setState(() {});
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    border: const OutlineInputBorder(),
+                    errorText: emailError,
+                  ),
+                  onChanged: (value) {
+                    validateEmailId(value);
+                    setState(() {});
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: const OutlineInputBorder(),
+                    errorText: passwordError,
+                  ),
+                  onChanged: (value) {
+                    validatePassword(value);
+                    setState(() {});
+                  },
+                  obscureText: true,
+                ),
+                const SizedBox(height: 16),
+                Visibility(
+                  visible: widget.isAdmin,
+                  child: TextField(
+                    controller: keyController,
+                    decoration: InputDecoration(
+                      labelText: 'Admin Key',
+                      border: const OutlineInputBorder(),
+                      errorText: adminKeyError,
+                    ),
+                    obscureText: true,
+                  ),
+                ),
+                Container(
+                  height: 50,
+                  margin: const EdgeInsets.all(10),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      validateFields();
+                      signup();
+                    },
+                    style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(80)),
+                        padding: EdgeInsets.zero,
+                        shadowColor: Colors.transparent),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Colors.yellow,
+                            Color.fromARGB(255, 238, 191, 23)
+                          ],
+                          begin: Alignment.topRight,
+                          end: Alignment.bottomLeft,
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            maxWidth: double.infinity, minHeight: 50),
+                        alignment: Alignment.center,
+                        child: const Text("Create Account",
+                            textAlign: TextAlign.center,
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 15)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+import 'package:flutter/material.dart';
+import 'package:sgsits_gym/pages/GsHome.dart';
+import "package:firebase_core/firebase_core.dart";
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(app());
+}
+
+class app extends StatefulWidget {
+  const app({super.key});
+
+  @override
+  State<app> createState() => _appState();
+}
+
+class _appState extends State<app> {
+  @override
+  Widget build(BuildContext context) {
+    List<Widget>? itemss = [
+      Container(
+        margin: EdgeInsets.all(0),
+        padding: EdgeInsets.all(0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10)),
+            border: Border.all(color: Colors.black, width: 1)),
+        child: Column(
+          children: [
+            Image.asset(
+              "assets/gym2.jpg",
+              fit: BoxFit.contain,
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              "\"Better Equipments\"",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+            )
+          ],
+        ),
+      ),
+      Container(
+        margin: EdgeInsets.all(0),
+        padding: EdgeInsets.all(0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10)),
+            border: Border.all(color: Colors.black, width: 1)),
+        child: Column(
+          children: [
+            Image.asset(
+              "assets/gym.jpg",
+              fit: BoxFit.contain,
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              "\"Better Hygiene\"",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+            )
+          ],
+        ),
+      ),
+      Container(
+        margin: EdgeInsets.all(0),
+        padding: EdgeInsets.all(0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10)),
+            border: Border.all(color: Colors.black, width: 1)),
+        child: Column(
+          children: [
+            Image.asset(
+              "assets/gym2.jpg",
+              fit: BoxFit.contain,
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              "\"Certified Trainers\"",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+            )
+          ],
+        ),
+      ),
+      Container(
+        margin: EdgeInsets.all(0),
+        padding: EdgeInsets.all(0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10)),
+            border: Border.all(color: Colors.black, width: 1)),
+        child: Column(
+          children: [
+            Image.asset(
+              "assets/gym3.jpg",
+              fit: BoxFit.contain,
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              "\"Less Cost\"",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+            )
+          ],
+        ),
+      ),
+      Container(
+        margin: EdgeInsets.all(0),
+        padding: EdgeInsets.all(0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10)),
+            border: Border.all(color: Colors.black, width: 1)),
+        child: Column(
+          children: [
+            Image.asset(
+              "assets/gym.jpg",
+              fit: BoxFit.contain,
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              "\"Well Developed Architecture\"",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+            )
+          ],
+        ),
+      ),
+    ];
+
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          appBar: AppBar(
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: CircleAvatar(
+                backgroundImage: AssetImage('assets/logo.jpeg'),
+                backgroundColor: Colors.transparent,
+              ),
+            ),
+            centerTitle: true,
+            title: Text(
+              "SGSITS GYM",
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                  fontSize: 20),
+            ),
+            backgroundColor: Colors.amberAccent,
+          ),
+          body: Gshome(items: itemss),
+        ));
+  }
+}

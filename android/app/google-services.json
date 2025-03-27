@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "75222365705",
+    "project_id": "sgsits-gym",
+    "storage_bucket": "sgsits-gym.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75222365705:android:f69c7b1dad24c7d7e2ead8",
+        "android_client_info": {
+          "package_name": "com.sgsits.ac.gym"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqXrPEffxjOOxUHnlDU_u-VscCD1q6CVk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
