@@ -125,7 +125,7 @@ class _LoginUiState extends State<LoginUi> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue[800],
+                  color: const Color.fromARGB(255, 130, 3, 3),
                 ),
               ),
               const SizedBox(height: 24),
@@ -141,7 +141,8 @@ class _LoginUiState extends State<LoginUi> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  prefixIcon: Icon(Icons.email, color: Colors.blue[800]),
+                  prefixIcon: Icon(Icons.email,
+                      color: const Color.fromARGB(255, 90, 1, 1)),
                 ),
               ),
               const SizedBox(height: 16),
@@ -156,13 +157,14 @@ class _LoginUiState extends State<LoginUi> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  prefixIcon: Icon(Icons.lock, color: Colors.blue[800]),
+                  prefixIcon: Icon(Icons.lock,
+                      color: const Color.fromARGB(255, 104, 1, 1)),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _passwordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
-                      color: Colors.blue[800],
+                      color: Colors.red[800],
                     ),
                     onPressed: () {
                       setState(() {
@@ -189,7 +191,7 @@ class _LoginUiState extends State<LoginUi> {
                     child: Text(
                       "Forgot Password?",
                       style: TextStyle(
-                        color: Colors.blue[800],
+                        color: const Color.fromARGB(255, 100, 2, 2),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -219,14 +221,14 @@ class _LoginUiState extends State<LoginUi> {
                 height: 50,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.blue[600]!, Colors.blue[800]!],
+                    colors: [Colors.red[600]!, Colors.black],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withOpacity(0.3),
+                      color: Colors.red.withOpacity(0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

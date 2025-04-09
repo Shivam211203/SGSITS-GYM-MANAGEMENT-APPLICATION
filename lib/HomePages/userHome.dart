@@ -18,24 +18,17 @@ class Userhome extends StatefulWidget {
 
 class _UserhomeState extends State<Userhome>
     with SingleTickerProviderStateMixin {
-  String? announcement;
-  QuerySnapshot? details;
-  String? firstName;
-  String? mobileNumber;
-  String? lastName;
-  String? base64Image;
-  DateTime? lastRenewal;
-  DateTime? planExpiry;
-  List<String> _assignedMeals = [];
-  List<String> _assignedWorkouts = [];
-  String email = FirebaseAuth.instance.currentUser!.email.toString();
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+  late Stream<DocumentSnapshot?> _userStream;
+  late Stream<DocumentSnapshot> _announcementStream;
   late AnimationController _animationController;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    getUserDetails();
+    _setupStreams();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -47,68 +40,37 @@ class _UserhomeState extends State<Userhome>
     _animationController.forward();
   }
 
+  void _setupStreams() {
+    final userEmail = _auth.currentUser?.email;
+    if (userEmail != null) {
+      _userStream = _firestore
+          .collection("Users")
+          .where("email", isEqualTo: userEmail)
+          .snapshots()
+          .map((query) => query.docs.isNotEmpty ? query.docs.first : null);
+    } else {
+      _userStream = Stream.value(null);
+    }
+    _announcementStream =
+        _firestore.collection("Announcements").doc("Announcements").snapshots();
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
-  Future<void> getUserDetails() async {
-    try {
-      details = await FirebaseFirestore.instance
-          .collection("Users")
-          .where("email", isEqualTo: FirebaseAuth.instance.currentUser!.email)
-          .get();
-
-      final announcementSnapshot = await FirebaseFirestore.instance
-          .collection("Announcements")
-          .doc("Announcements")
-          .get();
-
-      if (announcementSnapshot.exists) {
-        final announcementsList =
-            announcementSnapshot.get("Announcements") as List<dynamic>;
-        setState(() {
-          announcement = announcementsList[announcementsList.length - 1];
-        });
-      }
-
-      if (details != null && details!.docs.isNotEmpty) {
-        var userData = details!.docs[0].data() as Map<String, dynamic>;
-        setState(() {
-          mobileNumber = userData["mobileNumber"];
-          firstName = userData["firstName"];
-          lastName = userData["lastName"];
-          base64Image = userData["imageBase64"];
-          _assignedMeals = List<String>.from(userData["assignedMeals"] ?? []);
-          _assignedWorkouts =
-              List<String>.from(userData["assignedWorkouts"] ?? []);
-          lastRenewal = (userData["lastRenewal"] as Timestamp?)?.toDate();
-          planExpiry = (userData["planExpiry"] as Timestamp?)?.toDate();
-        });
-      }
-    } catch (e) {
-      print("Error fetching user details: $e");
-    }
-  }
-
   double calculatePlanProgress(DateTime? lastRenewal, DateTime? planExpiry) {
     if (lastRenewal == null || planExpiry == null) return 0.0;
-
     final now = DateTime.now().toUtc();
     final start = lastRenewal.toUtc();
     final end = planExpiry.toUtc();
-
     if (now.isAfter(end)) return 0;
-
     final totalDuration = end.difference(start).inSeconds;
     final elapsedDuration = now.difference(start).inSeconds;
-    print(totalDuration);
-    print(elapsedDuration);
     if (totalDuration <= 0) return 0.0;
-
     final progress = (elapsedDuration / totalDuration).clamp(0.0, 1.0);
-    print(progress);
     return 100 - (progress * 100).roundToDouble();
   }
 
@@ -145,11 +107,12 @@ class _UserhomeState extends State<Userhome>
           ElevatedButton(
             onPressed: () async {
               if (_controller.text.trim().isNotEmpty) {
-                await FirebaseFirestore.instance.collection('complaints').add({
+                await _firestore.collection('complaints').add({
                   'complaints': '0 ${_controller.text.trim()}',
                   'timestamp': FieldValue.serverTimestamp(),
+                  'userEmail': _auth.currentUser?.email,
                 });
-                Navigator.pop(context);
+                if (mounted) Navigator.pop(context);
               }
             },
             child: const Text('Submit'),
@@ -164,9 +127,9 @@ class _UserhomeState extends State<Userhome>
       centerTitle: true,
       toolbarHeight: 70,
       flexibleSpace: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+            colors: [Colors.red[900]!, Colors.black],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -189,30 +152,35 @@ class _UserhomeState extends State<Userhome>
           ),
           child: CircleAvatar(
             backgroundColor: Colors.white,
-            child: Image.asset(
-              'assets/logo.jpeg',
-              fit: BoxFit.contain,
-            ),
+            child: Image.asset('assets/logo.jpeg', fit: BoxFit.contain),
           ),
         ),
       ),
-      title: Text(
-        "Welcome, ${firstName ?? 'User'}!",
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 20,
-          color: Colors.white,
-          letterSpacing: 0.5,
-        ),
+      title: StreamBuilder<DocumentSnapshot?>(
+        stream: _userStream,
+        builder: (context, snapshot) {
+          final name = snapshot.data?.data() != null
+              ? (snapshot.data!.data() as Map<String, dynamic>)['firstName']
+                      as String? ??
+                  'User'
+              : 'User';
+          return Text(
+            "Welcome, $name!",
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          );
+        },
       ),
       actions: [
         Builder(
           builder: (BuildContext context) {
             return IconButton(
               icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () {
-                Scaffold.of(context).openEndDrawer();
-              },
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
             );
           },
         ),
@@ -231,106 +199,107 @@ class _UserhomeState extends State<Userhome>
             end: Alignment.bottomCenter,
           ),
         ),
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          spreadRadius: 1,
+        child: StreamBuilder<DocumentSnapshot?>(
+          stream: _userStream,
+          builder: (context, snapshot) {
+            final data = snapshot.data?.data() as Map<String, dynamic>?;
+            final assignedWorkouts =
+                List<String>.from(data?['assignedWorkouts'] ?? []);
+            final assignedMeals =
+                List<String>.from(data?['assignedMeals'] ?? []);
+
+            return ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                DrawerHeader(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.red[900]!, Colors.black],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: const BorderRadius.only(
+                        bottomRight: Radius.circular(30)),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 10,
+                              spreadRadius: 1,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.white,
-                      child: Image.asset(
-                        'assets/logo.jpeg',
-                        fit: BoxFit.contain,
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundColor: Colors.white,
+                          child: Image.asset('assets/logo.jpeg',
+                              fit: BoxFit.contain),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'GS Gym',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'GS Gym',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            _buildDrawerItem(Icons.home_rounded, "Home", () {
-              Navigator.pop(context);
-            }),
-            _buildDrawerItem(Icons.person_rounded, "Register a Complaint", () {
-              _showAddComplaintDialog();
-            }),
-            _buildDrawerItem(Icons.fitness_center_rounded, "Workouts", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailsScreen(
-                      items: _assignedWorkouts, title: "Workouts"),
                 ),
-              );
-            }),
-            _buildDrawerItem(Icons.restaurant_rounded, "Meals", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      DetailsScreen(items: _assignedMeals, title: "Meals"),
-                ),
-              );
-            }),
-            _buildDrawerItem(Icons.info_rounded, "Contact Us", () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return ContactOwner();
-              }));
-            }),
-            _buildDrawerItem(
-              Icons.logout_rounded,
-              "Logout",
-              () async {
-                try {
-                  final navigator = Navigator.of(context);
-                  await FirebaseAuth.instance.signOut();
-                  navigator.pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => Mainhome()),
-                    (route) => false,
-                  );
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Logout failed: ${e.toString()}")),
-                  );
-                }
-              },
-            ),
-          ],
+                _buildDrawerItem(
+                    Icons.home_rounded, "Home", () => Navigator.pop(context)),
+                _buildDrawerItem(Icons.person_rounded, "Register a Complaint",
+                    _showAddComplaintDialog),
+                _buildDrawerItem(
+                    Icons.fitness_center_rounded,
+                    "Workouts",
+                    () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => DetailsScreen(
+                                  items: assignedWorkouts, title: "Workouts")),
+                        )),
+                _buildDrawerItem(
+                    Icons.restaurant_rounded,
+                    "Meals",
+                    () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => DetailsScreen(
+                                  items: assignedMeals, title: "Meals")),
+                        )),
+                _buildDrawerItem(
+                    Icons.info_rounded,
+                    "Contact Us",
+                    () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ContactOwner()),
+                        )),
+                _buildDrawerItem(Icons.logout_rounded, "Logout", () async {
+                  await _auth.signOut();
+                  if (mounted) {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const Mainhome()),
+                      (route) => false,
+                    );
+                  }
+                }),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -342,24 +311,19 @@ class _UserhomeState extends State<Userhome>
       child: Card(
         elevation: 0,
         color: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: ListTile(
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.red.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: Colors.blue),
+            child: Icon(icon, color: Colors.red),
           ),
           title: Text(
             title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 16,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
           ),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           onTap: onTap,
@@ -380,7 +344,7 @@ class _UserhomeState extends State<Userhome>
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => Mainhome()),
+                    MaterialPageRoute(builder: (_) => const Mainhome()),
                     (route) => false,
                   );
                 },
@@ -409,9 +373,7 @@ class _UserhomeState extends State<Userhome>
             Expanded(
               child: FadeTransition(
                 opacity: _animation,
-                child: SafeArea(
-                  child: _buildDashboardCard(context),
-                ),
+                child: SafeArea(child: _buildDashboardCard(context)),
               ),
             ),
           ],
@@ -421,74 +383,102 @@ class _UserhomeState extends State<Userhome>
   }
 
   Widget _buildAnnouncementBanner() {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.amber[50],
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 5,
-            spreadRadius: 1,
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _announcementStream,
+      builder: (context, snapshot) {
+        final announcements =
+            snapshot.data?.get("Announcements") as List<dynamic>?;
+        final text = announcements?.isNotEmpty ?? false
+            ? announcements!.last.toString()
+            : "No announcements";
+
+        return Container(
+          height: 50,
+          decoration: BoxDecoration(
+            color: Colors.amber[50],
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 5,
+                spreadRadius: 1,
+              ),
+            ],
           ),
-        ],
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          const Icon(Icons.notifications_active_outlined,
-              color: Colors.orange, size: 20),
-          const SizedBox(width: 8),
-          Expanded(
-            child: announcement != null
-                ? Marquee(
-                    text: announcement!,
-                    style: const TextStyle(
-                      color: Colors.deepOrange,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    velocity: 50.0,
-                    blankSpace: 20.0,
-                  )
-                : const CircularProgressIndicator(),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              const Icon(Icons.notifications_active_outlined,
+                  color: Colors.orange, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Marquee(
+                  text: text,
+                  style: const TextStyle(
+                      color: Colors.deepOrange, fontWeight: FontWeight.w500),
+                  velocity: 50.0,
+                  blankSpace: 20.0,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildDashboardCard(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 24),
-      elevation: 2,
-      shadowColor: Colors.black26,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildProfileSection(),
-              const SizedBox(height: 32),
-              _buildProgressIndicator(),
-              const SizedBox(height: 32),
-              _buildMemberDetailsGrid(),
-              const SizedBox(height: 32),
-              _buildNavigationButtons(context),
-            ],
+    return StreamBuilder<DocumentSnapshot?>(
+      stream: _userStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error loading data'));
+        }
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const Center(child: Text('User data not found'));
+        }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final base64Image = data['imageBase64'] as String?;
+        final firstName = data['firstName'] as String? ?? 'User';
+        final lastName = data['lastName'] as String? ?? '';
+        final mobileNumber = data['mobileNumber'] as String? ?? 'N/A';
+        final lastRenewal = (data['lastRenewal'] as Timestamp?)?.toDate();
+        final planExpiry = (data['planExpiry'] as Timestamp?)?.toDate();
+        final progress = calculatePlanProgress(lastRenewal, planExpiry);
+
+        return Card(
+          margin: const EdgeInsets.only(bottom: 24),
+          elevation: 2,
+          shadowColor: Colors.black26,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildProfileSection(base64Image),
+                  const SizedBox(height: 32),
+                  _buildProgressIndicator(progress, lastRenewal, planExpiry),
+                  const SizedBox(height: 32),
+                  _buildMemberDetailsGrid(
+                      data, firstName, lastName, mobileNumber),
+                  const SizedBox(height: 32),
+                  _buildNavigationButtons(context, data),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildProfileSection() {
+  Widget _buildProfileSection(String? base64Image) {
     return Center(
       child: Stack(
         alignment: Alignment.bottomRight,
@@ -496,34 +486,26 @@ class _UserhomeState extends State<Userhome>
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.blue.shade100,
-                width: 4,
-              ),
+              border: Border.all(color: Colors.black, width: 4),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blue.shade100,
-                  blurRadius: 15,
-                  spreadRadius: 2,
-                ),
+                    color: Colors.red[100]!, blurRadius: 15, spreadRadius: 2),
               ],
             ),
             child: ClipOval(
               child: base64Image != null
                   ? Image.memory(
-                      base64Decode(base64Image!),
+                      base64Decode(base64Image),
                       width: 100,
                       height: 100,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 120,
-                          height: 120,
-                          color: Colors.blue.shade50,
-                          child: Icon(Icons.person,
-                              size: 60, color: Colors.blue.shade300),
-                        );
-                      },
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 120,
+                        height: 120,
+                        color: Colors.blue.shade50,
+                        child: Icon(Icons.person,
+                            size: 60, color: Colors.blue.shade300),
+                      ),
                     )
                   : Container(
                       width: 120,
@@ -539,20 +521,18 @@ class _UserhomeState extends State<Userhome>
     );
   }
 
-  Widget _buildProgressIndicator() {
-    double progress = calculatePlanProgress(lastRenewal, planExpiry);
-
+  Widget _buildProgressIndicator(
+      double progress, DateTime? lastRenewal, DateTime? planExpiry) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: Colors.red.shade50,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 1,
-          ),
+              color: Colors.red.withOpacity(0.1),
+              blurRadius: 10,
+              spreadRadius: 1),
         ],
       ),
       child: Column(
@@ -562,7 +542,7 @@ class _UserhomeState extends State<Userhome>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.blue[800],
+              color: const Color.fromARGB(255, 90, 1, 10),
               letterSpacing: 0.5,
             ),
           ),
@@ -579,7 +559,7 @@ class _UserhomeState extends State<Userhome>
                       totalSteps: 100,
                       currentStep: progress.toInt(),
                       stepSize: 10,
-                      selectedColor: Colors.blue[600]!,
+                      selectedColor: Colors.red.shade200,
                       unselectedColor: Colors.white,
                       padding: 0,
                       width: 120,
@@ -594,10 +574,9 @@ class _UserhomeState extends State<Userhome>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.blue.withOpacity(0.2),
-                            blurRadius: 10,
-                            spreadRadius: 1,
-                          ),
+                              color: Colors.red.withOpacity(0.2),
+                              blurRadius: 10,
+                              spreadRadius: 1),
                         ],
                       ),
                       child: Column(
@@ -606,18 +585,13 @@ class _UserhomeState extends State<Userhome>
                           Text(
                             "${progress.toInt()}%",
                             style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[800],
-                            ),
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red[800]),
                           ),
-                          Text(
-                            "Remaining",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
+                          Text("Remaining",
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.red[600])),
                         ],
                       ),
                     ),
@@ -632,7 +606,7 @@ class _UserhomeState extends State<Userhome>
                     _buildProgressDetailItem(
                       "Start Date",
                       lastRenewal != null
-                          ? DateFormat('dd MMM yyyy').format(lastRenewal!)
+                          ? DateFormat('dd MMM yyyy').format(lastRenewal)
                           : "N/A",
                       Icons.calendar_today_rounded,
                     ),
@@ -640,7 +614,7 @@ class _UserhomeState extends State<Userhome>
                     _buildProgressDetailItem(
                       "End Date",
                       planExpiry != null
-                          ? DateFormat('dd MMM yyyy').format(planExpiry!)
+                          ? DateFormat('dd MMM yyyy').format(planExpiry)
                           : "N/A",
                       Icons.event_available_rounded,
                     ),
@@ -648,7 +622,7 @@ class _UserhomeState extends State<Userhome>
                     _buildProgressDetailItem(
                       "Days Left",
                       planExpiry != null
-                          ? "${planExpiry!.difference(DateTime.now()).inDays} days"
+                          ? "${planExpiry.difference(DateTime.now()).inDays} days"
                           : "N/A",
                       Icons.timer_rounded,
                     ),
@@ -672,51 +646,42 @@ class _UserhomeState extends State<Userhome>
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.blue.withOpacity(0.1),
-                blurRadius: 5,
-                spreadRadius: 1,
-              ),
+                  color: Colors.red.withOpacity(0.1),
+                  blurRadius: 5,
+                  spreadRadius: 1),
             ],
           ),
-          child: Icon(icon, color: Colors.blue, size: 18),
+          child: Icon(icon, color: Colors.red, size: 18),
         ),
         const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[800],
-              ),
-            ),
+            Text(title,
+                style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+            Text(value,
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[800])),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildMemberDetailsGrid() {
+  Widget _buildMemberDetailsGrid(Map<String, dynamic> data, String firstName,
+      String lastName, String mobileNumber) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            spreadRadius: 1,
-          ),
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              spreadRadius: 1),
         ],
       ),
       child: Column(
@@ -727,7 +692,7 @@ class _UserhomeState extends State<Userhome>
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1565C0),
+              color: Color.fromARGB(255, 107, 2, 2),
               letterSpacing: 0.5,
             ),
           ),
@@ -740,26 +705,16 @@ class _UserhomeState extends State<Userhome>
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
             children: [
+              _buildDetailItem(Icons.person_outline_rounded, "Member Name",
+                  "$firstName $lastName"),
               _buildDetailItem(
-                Icons.person_outline_rounded,
-                "Member Name",
-                "$firstName $lastName",
-              ),
-              _buildDetailItem(
-                Icons.credit_card_rounded,
-                "Member ID",
-                details?.docs[0].id.substring(0, 8).toUpperCase() ?? "N/A",
-              ),
-              _buildDetailItem(
-                Icons.phone_rounded,
-                "Mobile",
-                mobileNumber ?? "N/A",
-              ),
-              _buildDetailItem(
-                Icons.email_rounded,
-                "Email",
-                email,
-              ),
+                  Icons.credit_card_rounded,
+                  "Member ID",
+                  data['memberId']?.toString().substring(0, 8).toUpperCase() ??
+                      "N/A"),
+              _buildDetailItem(Icons.phone_rounded, "Mobile", mobileNumber),
+              _buildDetailItem(Icons.email_rounded, "Email",
+                  _auth.currentUser?.email ?? "N/A"),
             ],
           ),
         ],
@@ -770,7 +725,7 @@ class _UserhomeState extends State<Userhome>
   Widget _buildDetailItem(IconData icon, String title, String value) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: Colors.red[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey[200]!),
       ),
@@ -778,10 +733,10 @@ class _UserhomeState extends State<Userhome>
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.red.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: Colors.blue, size: 16),
+            child: Icon(icon, color: Colors.red, size: 16),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -791,20 +746,14 @@ class _UserhomeState extends State<Userhome>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+                  Text(title,
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                   Text(
                     value,
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[800],
-                    ),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[800]),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -816,7 +765,11 @@ class _UserhomeState extends State<Userhome>
     );
   }
 
-  Widget _buildNavigationButtons(BuildContext context) {
+  Widget _buildNavigationButtons(
+      BuildContext context, Map<String, dynamic> data) {
+    final assignedWorkouts = List<String>.from(data['assignedWorkouts'] ?? []);
+    final assignedMeals = List<String>.from(data['assignedMeals'] ?? []);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -825,7 +778,7 @@ class _UserhomeState extends State<Userhome>
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1565C0),
+            color: Color.fromARGB(255, 87, 2, 4),
             letterSpacing: 0.5,
           ),
         ),
@@ -837,16 +790,13 @@ class _UserhomeState extends State<Userhome>
                 context,
                 "View Meals",
                 Icons.restaurant_rounded,
-                const Color(0xFF1E88E5),
-                () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          DetailsScreen(items: _assignedMeals, title: "Meals"),
-                    ),
-                  );
-                },
+                const Color.fromARGB(255, 105, 1, 1),
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          DetailsScreen(items: assignedMeals, title: "Meals")),
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -855,16 +805,13 @@ class _UserhomeState extends State<Userhome>
                 context,
                 "View Workouts",
                 Icons.fitness_center_rounded,
-                const Color(0xFF1565C0),
-                () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailsScreen(
-                          items: _assignedWorkouts, title: "Workouts"),
-                    ),
-                  );
-                },
+                const Color.fromARGB(255, 89, 1, 1),
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => DetailsScreen(
+                          items: assignedWorkouts, title: "Workouts")),
+                ),
               ),
             ),
           ],
@@ -873,23 +820,17 @@ class _UserhomeState extends State<Userhome>
     );
   }
 
-  Widget _buildActionButton(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onPressed,
-  ) {
+  Widget _buildActionButton(BuildContext context, String title, IconData icon,
+      Color color, VoidCallback onPressed) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.white,
-            blurRadius: 10,
-            spreadRadius: 0,
-            offset: const Offset(0, 4),
-          ),
+              color: Colors.white,
+              blurRadius: 10,
+              spreadRadius: 0,
+              offset: const Offset(0, 4)),
         ],
       ),
       child: ElevatedButton(
@@ -899,26 +840,17 @@ class _UserhomeState extends State<Userhome>
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 20,
-              color: Colors.white,
-            ),
+            Icon(icon, size: 20, color: Colors.white),
             const SizedBox(width: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Text(title,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           ],
         ),
       ),

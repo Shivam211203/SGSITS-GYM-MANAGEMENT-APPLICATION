@@ -55,7 +55,7 @@ class _ComplaintsState extends State<Complaints> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-                colors: [Colors.blue[600]!, Colors.blue[800]!],
+                colors: [Colors.red[800]!, Colors.black],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight),
           ),
@@ -83,7 +83,7 @@ class _ComplaintsState extends State<Complaints> {
       // Add floating action button here
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddComplaintDialog,
-        backgroundColor: Colors.blue[800],
+        backgroundColor: const Color.fromARGB(255, 99, 2, 2),
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -146,7 +146,8 @@ class _ComplaintsState extends State<Complaints> {
                         ? const Icon(Icons.check_circle, color: Colors.green)
                         : ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue[800],
+                              backgroundColor:
+                                  const Color.fromARGB(255, 118, 1, 1),
                             ),
                             onPressed: () async {
                               await FirebaseFirestore.instance

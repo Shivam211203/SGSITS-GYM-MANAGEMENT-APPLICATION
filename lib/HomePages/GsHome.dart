@@ -65,10 +65,10 @@ class _GshomeState extends State<Gshome> {
       child: Column(
         children: [
           Text(
-            "\"Welcome To SGSITS GYMNASIUM\"",
+            "\"Welcome To  PRO BODY LINE\"",
             style: TextStyle(
-                color: Colors.blue[800],
-                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontWeight: FontWeight.w900,
                 fontStyle: FontStyle.italic,
                 fontSize: 15),
           ),
@@ -110,10 +110,9 @@ class _GshomeState extends State<Gshome> {
                     width: 10,
                     decoration: BoxDecoration(
                         border: Border.all(
-                            color: Colors.blue[800]!,
-                            width: 1), // Changed to blue
+                            color: Colors.black, width: 1), // Changed to blue
                         color: index == _currIndex
-                            ? Colors.blue[600]!
+                            ? const Color.fromARGB(255, 121, 9, 9)
                             : Colors.white,
                         shape: BoxShape.circle),
                   );
@@ -126,9 +125,9 @@ class _GshomeState extends State<Gshome> {
           ),
           Text(
             textAlign: TextAlign.center,
-            "\" Lets Get Fit With SGSITS Gym\" ",
+            "\" Lets Get Fit With ProBody Line \" ",
             style: TextStyle(
-                color: Colors.blue[800], // Changed to blue
+                color: Colors.black,
                 fontWeight: FontWeight.w900,
                 fontStyle: FontStyle.italic,
                 fontSize: 15),
@@ -138,7 +137,7 @@ class _GshomeState extends State<Gshome> {
           ),
           Text(
             textAlign: TextAlign.center,
-            " If you are new Here Please Contact +917489474338 \n Or login by Tapping Below Button",
+            " If you are new Here Please Contact +919009394888 \n Or login by Tapping Below Button",
             style: TextStyle(
                 color: Colors.grey[700], // Changed to grey
                 fontWeight: FontWeight.w500,
@@ -159,10 +158,7 @@ class _GshomeState extends State<Gshome> {
             child: Container(
               decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Colors.blue[600]!,
-                      Colors.blue[800]!
-                    ], // Changed to blue
+                    colors: [Colors.red[800]!, Colors.black], // Changed to blue
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

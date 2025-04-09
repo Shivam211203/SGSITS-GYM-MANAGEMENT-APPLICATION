@@ -67,7 +67,7 @@ class _AnnouncementsState extends State<Announcements> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue[600]!, Colors.blue[800]!],
+              colors: [Colors.red[800]!, Colors.black],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -179,7 +179,7 @@ class _AnnouncementsState extends State<Announcements> {
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Colors.blue[600]!, Colors.blue[800]!],
+                          colors: [Colors.red[800]!, Colors.black],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),

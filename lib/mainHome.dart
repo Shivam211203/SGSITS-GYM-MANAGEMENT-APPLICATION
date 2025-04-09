@@ -4,137 +4,48 @@ import 'package:sgsits_gym/HomePages/GsHome.dart';
 import 'package:sgsits_gym/pages/loginpage.dart';
 
 class Mainhome extends StatefulWidget {
-  Mainhome({super.key});
+  const Mainhome({super.key});
 
   @override
   State<Mainhome> createState() => _MainhomeState();
 }
 
 class _MainhomeState extends State<Mainhome> {
-  List<Widget>? itemss = [
-    Container(
-      margin: EdgeInsets.all(0),
-      padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10)),
-          border: Border.all(color: Colors.black, width: 1)),
-      child: Column(
-        children: [
-          Image.asset(
-            "assets/gym2.jpg",
-            fit: BoxFit.contain,
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Text(
-            "\"Better Equipments\"",
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
-          )
-        ],
-      ),
-    ),
-    Container(
-      margin: EdgeInsets.all(0),
-      padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10)),
-          border: Border.all(color: Colors.black, width: 1)),
-      child: Column(
-        children: [
-          Image.asset(
-            "assets/gym.jpg",
-            fit: BoxFit.contain,
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Text(
-            "\"Better Hygiene\"",
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
-          )
-        ],
-      ),
-    ),
-    Container(
-      margin: EdgeInsets.all(0),
-      padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10)),
-          border: Border.all(color: Colors.black, width: 1)),
-      child: Column(
-        children: [
-          Image.asset(
-            "assets/gym2.jpg",
-            fit: BoxFit.contain,
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Text(
-            "\"Certified Trainers\"",
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
-          )
-        ],
-      ),
-    ),
-    Container(
-      margin: EdgeInsets.all(0),
-      padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(10),
-              bottomRight: Radius.circular(10)),
-          border: Border.all(color: Colors.black, width: 1)),
-      child: Column(
-        children: [
-          Image.asset(
-            "assets/gym3.jpg",
-            fit: BoxFit.contain,
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Text(
-            "\"Less Cost\"",
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
-          )
-        ],
-      ),
-    ),
-    Container(
-        margin: EdgeInsets.all(0),
-        padding: EdgeInsets.all(0),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10)),
-            border: Border.all(color: Colors.black, width: 1)),
-        child: Column(children: [
-          Image.asset(
-            "assets/gym.jpg",
-            fit: BoxFit.contain,
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Text(
-            "\"Well Developed Architecture\"",
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
-          )
-        ]))
+  final List<Widget> itemss = [
+    _buildItem("assets/gym2.jpg", "Imported Machines ", Colors.white),
+    _buildItem("assets/gym3.jpg", "Better Environment", Colors.white),
+    _buildItem("assets/gym1.jpg", "Workout Essentials", Colors.white),
+    _buildItem("assets/gym4.jpg", "Champion Trainers", Colors.white),
+    _buildItem("assets/gym.jpg", "Well Developed Architecture", Colors.white),
   ];
+
+  static Widget _buildItem(String img, String caption, Color bgColor) {
+    return Container(
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(10),
+          bottomRight: Radius.circular(10),
+        ),
+        border: Border.all(color: Colors.black, width: 3),
+      ),
+      child: Column(
+        children: [
+          Image.asset(img, fit: BoxFit.contain),
+          const SizedBox(height: 8),
+          Text(
+            "\"$caption\"",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontStyle: FontStyle.italic,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,11 +54,10 @@ class _MainhomeState extends State<Mainhome> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue[600]!, Colors.blue[800]!],
+              colors: [Colors.red[900]!, Colors.black],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            color: Colors.blue[100],
           ),
         ),
         elevation: 0,
@@ -161,9 +71,10 @@ class _MainhomeState extends State<Mainhome> {
             ),
           ),
         ),
-        title: Text(
-          "Welcome, To GS Gym!",
-          style: const TextStyle(
+        title: const Text(
+          "PRO BODY LINE GYM",
+          style: TextStyle(
+            fontStyle: FontStyle.italic,
             fontWeight: FontWeight.w600,
             fontSize: 20,
             color: Colors.white,
@@ -173,100 +84,74 @@ class _MainhomeState extends State<Mainhome> {
           Builder(
             builder: (context) => IconButton(
               icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () {
-                Scaffold.of(context).openEndDrawer();
-              },
+              onPressed: () => Scaffold.of(context).openEndDrawer(),
             ),
           ),
         ],
       ),
       endDrawer: Drawer(
-        child: Builder(
-          builder: (context) => ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue[600]!, Colors.blue[800]!],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+        backgroundColor: Colors.black,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.red[900]!, Colors.black],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.white,
+                    child: Image.asset(
+                      'assets/logo.jpeg',
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.white,
-                      child: Image.asset(
-                        'assets/logo.jpeg',
-                        fit: BoxFit.contain,
-                      ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'PRO BODY LINE',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      'GS Gym',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              ListTile(
-                leading: Icon(Icons.home, color: Colors.blue),
-                title: Text("Home"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Mainhome(),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.person, color: Colors.blue),
-                title: Text("Login Screen"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Loginpage()),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.info, color: Colors.blue),
-                title: Text("About Us"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ContactOwner()),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.contact_mail, color: Colors.blue),
-                title: Text("Contact Us"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ContactOwner()),
-                  );
-                },
-              ),
-            ],
-          ),
+            ),
+            _drawerTile(context, Icons.home, "Home", Mainhome()),
+            _drawerTile(context, Icons.person, "Login Screen", Loginpage()),
+            _drawerTile(context, Icons.info, "About Us", ContactOwner()),
+            _drawerTile(
+                context, Icons.contact_mail, "Contact Us", ContactOwner()),
+          ],
         ),
       ),
-      body: Gshome(items: itemss!),
+      body: Container(
+        color: Colors.white,
+        child: Gshome(items: itemss),
+      ),
+    );
+  }
+
+  ListTile _drawerTile(
+      BuildContext context, IconData icon, String title, Widget page) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.red),
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white),
+      ),
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+      },
     );
   }
 }

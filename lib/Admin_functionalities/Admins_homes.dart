@@ -15,7 +15,7 @@ class _AdminsHomeState extends State<AdminsHome> {
   List<DocumentSnapshot> _admins = [];
   String _searchQuery = '';
   String? _error;
-  final Color _primaryColor = const Color(0xFF2196F3);
+  final Color _primaryColor = const Color.fromARGB(255, 97, 2, 2);
 
   @override
   void initState() {
@@ -90,7 +90,7 @@ class _AdminsHomeState extends State<AdminsHome> {
               children: [
                 _buildIconButton(Icons.call, "call", _primaryColor, phone),
                 const SizedBox(width: 16),
-                _buildIconButton(Icons.delete, "delete", Colors.red, email),
+                _buildIconButton(Icons.delete, "delete", Colors.red, doc.id),
               ],
             ),
           ],
@@ -127,7 +127,8 @@ class _AdminsHomeState extends State<AdminsHome> {
     );
   }
 
-  Future<void> _deleteAdmin(String email) async {
+  Future<void> _deleteAdmin(String docId) async {
+    // Rename parameter to docId
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -150,7 +151,7 @@ class _AdminsHomeState extends State<AdminsHome> {
       try {
         await FirebaseFirestore.instance
             .collection('Admins')
-            .doc(email)
+            .doc(docId) // Use document ID instead of email
             .delete();
 
         await _fetchAdmins();

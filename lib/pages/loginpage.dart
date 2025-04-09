@@ -16,7 +16,7 @@ class _LoginpageState extends State<Loginpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           AnimatedSwitcher(
@@ -30,7 +30,7 @@ class _LoginpageState extends State<Loginpage> {
               height: double.infinity,
               width: double.infinity,
               fit: BoxFit.fill,
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withOpacity(0.15),
               colorBlendMode: BlendMode.modulate,
             ),
           ),
@@ -43,7 +43,7 @@ class _LoginpageState extends State<Loginpage> {
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue[600]!, Colors.blue[800]!],
+              colors: [Colors.red[800]!, Colors.black],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),

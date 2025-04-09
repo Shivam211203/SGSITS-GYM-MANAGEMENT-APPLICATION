@@ -66,7 +66,15 @@ class ContactOwner extends StatelessWidget {
           'Contact Owner',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.blue[900],
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.red[900]!, Colors.black],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -74,10 +82,17 @@ class ContactOwner extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
+            Center(
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: AssetImage('assets/logo.jpeg'),
+              ),
+            ),
+            SizedBox(height: 20),
             Card(
               elevation: 4,
               child: ListTile(
-                leading: const Icon(Icons.email, color: Colors.blue),
+                leading: const Icon(Icons.email, color: Colors.red),
                 title: const Text('Email'),
                 subtitle: const Text('owner@sgsits.ac.in'),
                 onTap: () => _sendEmail(context, 'owner@sgsits.ac.in'),
@@ -89,8 +104,8 @@ class ContactOwner extends StatelessWidget {
               child: ListTile(
                 leading: const Icon(Icons.phone, color: Colors.green),
                 title: const Text('Phone Number'),
-                subtitle: const Text('+91 9876543210'),
-                onTap: () => _makePhoneCall(context, '9876543210'),
+                subtitle: const Text('+91 9009394888'),
+                onTap: () => _makePhoneCall(context, '9009394888'),
               ),
             ),
           ],

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class DetailsScreen extends StatelessWidget {
@@ -12,13 +13,16 @@ class DetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: Text('Assigned $title'),
+        title: Text(
+          'Assigned $title',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
         elevation: 0,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+              colors: [Colors.red[800]!, Colors.black],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -41,13 +45,7 @@ class DetailsScreen extends StatelessWidget {
         ),
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF8FAFC), Color(0xFFEFF6FF)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        decoration: BoxDecoration(color: Colors.white),
         child: items.isEmpty
             ? Center(
                 child: Column(
@@ -58,7 +56,7 @@ class DetailsScreen extends StatelessWidget {
                           ? Icons.restaurant_rounded
                           : Icons.fitness_center_rounded,
                       size: 80,
-                      color: Colors.blue.withOpacity(0.3),
+                      color: Colors.red.withOpacity(0.3),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -99,14 +97,14 @@ class DetailsScreen extends StatelessWidget {
                       leading: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
+                          color: Colors.red.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           title == "Meals"
                               ? Icons.restaurant_rounded
                               : Icons.fitness_center_rounded,
-                          color: Colors.blue,
+                          color: Colors.red[800],
                         ),
                       ),
                       title: Text(
@@ -124,11 +122,6 @@ class DetailsScreen extends StatelessWidget {
                           color: Colors.grey[600],
                           fontSize: 14,
                         ),
-                      ),
-                      trailing: const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 16,
-                        color: Colors.blue,
                       ),
                     ),
                   );
